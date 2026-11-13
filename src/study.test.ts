@@ -1,0 +1,12 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {generatePlan,validatePlan,recommendMinutes,rewards,analyze,localCoach,validReply,type StudyRecord,type Task} from './study.ts';
+const tasks:Task[]=[{id:'low',subject:'영어',title:'단어',minutes:30,priority:1},{id:'high',subject:'수학',title:'오답',minutes:45,priority:3}];
+const record=(id:string,extra:Partial<StudyRecord>={}):StudyRecord=>({id,task:'문제',subject:'수학',ms:600000,at:Date.now(),result:'완료',...extra});
+test('가용 시간에 휴식과 회고를 포함하고 우선순위를 지킨다',()=>{for(const available of [10,25,60,90,480]){const p=generatePlan(tasks,available,25,5,'test');assert.ok(validatePlan(p));assert.ok(p.items.reduce((s,i)=>s+i.minutes,0)<=available);assert.equal(p.items[0].taskId,'high');assert.equal(p.items.at(-1)?.kind,'reflection');assert.equal(p.confirmed,false);}});
+test('계획 초과 수정은 확정할 수 없고 빈 입력은 거절한다',()=>{const p=generatePlan(tasks,60,25,5,'test');p.items[0].minutes=120;assert.equal(validatePlan(p),false);assert.throws(()=>generatePlan([],60,25,5,''));assert.throws(()=>generatePlan(tasks,NaN,25,5,''));});
+test('난이도 반복 시 짧게 제안하며 기록이 적으면 기본값',()=>{assert.equal(recommendMinutes([record('a')],25).minutes,25);assert.equal(recommendMinutes([record('a',{difficulty:'어려움'}),record('b',{difficulty:'어려움'}),record('c')],25).minutes,15);});
+test('동일 세션은 보상에 중복 반영하지 않는다',()=>{const r=record('same');assert.equal(rewards([r,r,r]).find(b=>b.id==='three')?.earned,false);assert.equal(rewards([]).filter(b=>b.earned).length,0);});
+test('중단한 날 다시 시작한 기록에만 재시작 보상',()=>{const now=Date.now();const rs=[record('a',{at:now-1000,interrupted:true}),record('b',{at:now})];assert.equal(rewards(rs).find(b=>b.id==='return')?.earned,true);assert.equal(rewards(rs.slice(0,1)).find(b=>b.id==='return')?.earned,false);});
+test('통계는 최근 7일 범위와 기록 부족을 구분한다',()=>{const now=Date.now();const stats=analyze([record('a'),record('old',{at:now-8*86400000})],now);assert.equal(stats.count,1);assert.equal(stats.avgMinutes,10);assert.equal(stats.best,null);assert.equal(analyze([]).count,0);});
+test('코칭은 적용 가능한 제안만 생성하고 외부 응답을 검증한다',()=>{const c=localCoach([],'조금 피곤해요');assert.equal(c.focusMinutes,10);assert.ok(validReply(c));assert.equal(validReply({...c,focusMinutes:500}),false);assert.equal(validReply({message:42}),false);});
