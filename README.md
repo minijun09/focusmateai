@@ -1,55 +1,55 @@
-# FocusMate 웹 앱
+# FocusMate AI
 
-React + TypeScript + Vite 기반 로컬 학습 앱입니다.
+**English** · [한국어](README.ko.md)
+
+A study companion for high school students. Set a small goal, focus, take a break, and reflect—one session at a time.
+
+Built with React, TypeScript, and Vite.
+
+## Features
+
+- **Focus and break timers:** Start, pause, resume, or end a session with adjustable durations.
+- **Personalized study plans:** Add subjects, tasks, estimates, and priorities. Generate a plan that includes breaks and reflection within your available time, review it, and send a focus item to the timer.
+- **Achievement badges:** Recognize a first completed goal, three completed sessions, studying on three different days, and returning after an interruption. Duplicate session records do not earn duplicate credit.
+- **Study pattern insights:** Review the past seven days by subject, session duration, completion rate, and time of day when enough records are available.
+- **Study coach:** Get a short suggestion with its reasoning. Accepting a suggestion updates the next timer setup; it never starts a session automatically.
+- **Return-to-focus reminders:** During a running focus session, returning after the page has been hidden for at least five seconds can show a gentle reminder. Repeated prompts within 60 seconds are suppressed. Reminders are disabled during breaks and pauses, and can be turned off.
+
+The app detects page visibility changes; it does not detect or block YouTube, Instagram, or other apps. Timer duration represents recorded running time, not a measurement of attention or academic performance.
+
+## Getting started
+
+Use Node.js 24 and pnpm 11.25.0.
 
 ```sh
 pnpm install
 pnpm dev
 ```
 
-`pnpm build`로 타입 검사와 프로덕션 빌드, `pnpm test`로 타이머·복귀 안내 정책 테스트를 실행합니다. 테스트에는 Node 22 이상이 필요합니다.
+Open the local URL printed by Vite.
 
-집중 목표·시간 설정, 시작·일시정지·재개·종료, 휴식 타이머, 결과 기록과 당일 요약, 브라우저 저장, 실행 중 복원 확인을 제공합니다.
+```sh
+pnpm test       # Timer, planning, rewards, insights, and AI validation tests
+pnpm build      # Type checking and production build
+pnpm preview    # Preview the production build locally
+```
 
-집중 실행 중 5초 이상 화면이 숨겨졌다가 돌아오면 복귀 안내를 표시합니다. 60초 안의 반복 안내와 휴식·일시정지 중 안내는 제외합니다. 계속하기는 타이머를 유지하고, 쉬기는 일시정지하며, 종료는 회고로 이동합니다. 설정에서 끌 수 있습니다. 다른 앱 감지나 차단 기능은 아닙니다.
+## Optional AI connection
 
-외부 AI는 아직 연결하지 않았으며 화면의 코칭은 기본 안내입니다. 브라우저 데이터를 지우면 기록도 삭제됩니다. 타이머 실행 시간은 실제 주의 집중의 측정값이 아닙니다.
+The app works with local, rule-based recommendations without an API key. An optional OpenAI integration is implemented, but live API responses have not yet been verified with a configured account.
 
-## 맞춤 공부 기능
+1. Copy `.env.example` to `.env.local`.
+2. Set `OPENAI_API_KEY` and, optionally, `OPENAI_MODEL` on the server. Do not prefix secret keys with `VITE_`.
+3. Restart the development server and enable external AI in the coach section. Consent lasts for the current visit only.
 
-- **공부 계획:** 과목·할 일·예상 분량·우선순위·가용 시간을 입력하면 집중·휴식·회고를 배분합니다. 초안의 시간을 수정하고 확정한 뒤 타이머로 가져올 수 있습니다. 가용 시간을 넘는 계획은 확정할 수 없습니다.
-- **집중력 보상:** 첫 목표 완료, 세션 3회 완료, 서로 다른 3일 기록, 중단한 날 재시작 배지를 기록에서 계산합니다. 중복 세션은 보상 계산에서 제외합니다. 보상 표시는 끌 수 있습니다.
-- **패턴 분석:** 최근 7일 시간·과목·세션 목표 완료율과 충분한 기록이 있는 시간대를 요약합니다. 실제 집중력이나 성적의 측정값은 아닙니다. 일별 시간은 세션 종료 날짜 기준입니다.
-- **학습 코치:** 질문과 선택형 고민에 기록 기반 기본 안내를 제공하며, 제안 수락 시에만 다음 집중 시간을 타이머에 반영합니다. 실행 중에는 변경할 수 없습니다.
+With consent, requests include the question, selected subjects, estimated durations, priorities, and seven-day summary metrics. Task titles and individual study records are excluded. API keys stay on the server. Invalid responses and connection failures fall back to local guidance; plan and record changes require the student's action.
 
-### 선택적 외부 AI
+The AI endpoint is available through the local Vite development and preview servers. A static deployment supports the local features and requires a separate backend for external AI. Before using external AI with students, confirm provider data handling and the applicable consent process.
 
-현재 키가 없으면 **외부 모델을 호출하지 않고** 기기 내 규칙 기반으로 동작합니다. 연결 코드는 구현했지만 실제 계정에 대한 API 호출은 검증하지 않았습니다.
+API reference: [OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs).
 
-1. `.env.example`을 `.env.local`로 복사합니다.
-2. `OPENAI_API_KEY`와 필요하면 `OPENAI_MODEL`을 서버 환경에 설정합니다. 비밀 키에 `VITE_` 접두어를 붙이지 않습니다.
-3. 개발 서버를 재시작하고 코치 영역에서 외부 AI 전송에 동의합니다. 동의는 이번 방문에만 유지됩니다.
+## Your study data
 
-AI는 OpenAI Responses API의 구조화된 출력으로 짧은 조언·근거·다음 집중 길이를 반환합니다. 질문 원문, 선택 과목·예상 시간·우선순위, 최근 7일 집계만 전송하며 할 일 제목과 개별 기록은 보내지 않습니다. 설정 키는 브라우저 번들에 들어가지 않습니다. 요청 실패·형식 오류·동의 철회·삭제 시 기존 계획과 기록을 유지하고 기본 안내로 돌아갑니다.
+Plans, records, badges, and coaching history stay in the current browser. They are not automatically shared with other visitors or synced across devices. Clearing browser data removes them. The app also provides a full-record deletion option.
 
-AI 엔드포인트는 로컬 Vite 개발 서버와 `pnpm preview`에만 포함됩니다. `dist/`를 정적 호스팅하면 기본 기능은 동작하지만 외부 AI에는 별도 서버가 필요합니다. 실제 학생 대상 외부 AI 사용 전에는 제공자 데이터 처리 조건과 운영 동의 절차를 확정해야 합니다.
-
-공식 API 형식: https://developers.openai.com/api/docs/guides/structured-outputs
-
-### 검증
-
-`pnpm test`는 타이머, 가용 시간 검증, 보상 중복 방지, 패턴 집계, AI 동의·전송 필드·출력 검증을 확인합니다. `pnpm build`는 타입 검사와 프로덕션 빌드를 수행합니다.
-
-## GitHub Pages 공유
-
-배포 예정 주소: **https://minijun09.github.io/focusmateai/**
-
-1. 변경 사항을 GitHub의 `main` 브랜치에 올립니다.
-2. 저장소 **Settings → Pages → Build and deployment → Source**를 **GitHub Actions**로 선택합니다.
-3. **Actions → Deploy FocusMate to GitHub Pages**에서 실행 결과를 확인합니다. 최초 실행이 Pages 설정 전 실패했다면 `Run workflow`로 다시 실행합니다.
-
-`main`에 push하면 `.github/workflows/pages.yml`이 테스트·빌드 후 `dist/`만 배포합니다. 소스 디렉터리나 `node_modules`를 배포 대상으로 지정하지 않습니다. `pnpm build:pages`는 `/focusmateai/` 자산 경로를 적용합니다. 공유 빌드에서는 로컬 AI 상태 API를 요청하지 않습니다.
-
-공유 방문자의 계획·기록·보상은 각자의 브라우저에 저장되며 다른 사용자에게 공유되지 않습니다. localhost에서 남긴 기록도 공유 사이트로 자동 이동하지 않습니다. GitHub Pages는 정적 호스팅이므로 외부 AI 서버는 실행되지 않으며, 기본 코칭과 기록 기반 개인화가 동작합니다. 실제 외부 AI를 공유 서비스에 연결하려면 별도 서버 배포가 필요합니다. API 키를 저장소나 프런트엔드에 넣지 않습니다.
-
-GitHub Pages 설정 참고: https://vite.dev/guide/static-deploy.html#github-pages
+Achievement displays can be turned off. Taking a break or missing a day does not incur a penalty.
