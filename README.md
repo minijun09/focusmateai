@@ -84,3 +84,9 @@ Taking a break or missing a day does not incur a penalty.
 - `server/ai.mjs`: local AI middleware and input/output validation.
 - `src/*.test.ts`, `server/*.test.mjs`: automated checks.
 - `docs/`: product plans and design notes in Korean. These describe intended scope; the behavior above reflects the current implementation.
+
+## License
+
+[MIT License](LICENSE) · Copyright (c) 2026 minijun09.
+
+Third-party dependencies retain their own licenses.
